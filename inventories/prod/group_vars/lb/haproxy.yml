@@ -1,9 +1,14 @@
-haproxy_version: 1.8
-ssl_path:
-haproxy_front_ip:
-haproxy_adm_ip:
-server:
+#haproxy_version: 1.6.3
+ssl_path: "/etc/ssl/carteloisirs.com"
+cert_name: "carteloisirs.com.pem"
+#haproxy_front_ip: '{{ ansible_facts.ens20.ipv4.address | default("0.0.0.0") }}'
+haproxy_front_ip: "{{ ansible_facts.ens18.ipv4.address }}"
+haproxy_adm_ip: "{{ ansible_facts.ens18.ipv4.address }}"
+backend_server:
   - { name: "front01.prod.s2.carteloisirs.com", listen: "192.168.31.8" }
-  - { name: "front02.prod.s2.carteloisirs.com", listen: "192.168.31.10" }
-  - { name: "front01.prod.s3.carteloisirs.com", listen: "192.168.31.11" }
-  - { name: "front02.prod.s3.carteloisirs.com", listen: "192.168.31.12" }
+  - { name: "front02.prod.s2.carteloisirs.com", listen: "192.168.31.9" }
+  - { name: "front01.prod.s3.carteloisirs.com", listen: "192.168.31.10" }
+  - { name: "front02.prod.s3.carteloisirs.com", listen: "192.168.31.11" }
+
+haproxy_adm: haproxyadm
+haproxy_adm_pass: "{{ vault_haproxy_adm_pass }}"
