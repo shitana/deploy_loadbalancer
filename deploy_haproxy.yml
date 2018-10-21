@@ -14,5 +14,4 @@
   gather_facts: True
   become: true
   roles:
-    - role: 'ssl'
     - role: 'haproxy'
