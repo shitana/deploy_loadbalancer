@@ -1,0 +1,9 @@
+haproxy_version: 1.8
+ssl_path:
+haproxy_front_ip:
+haproxy_adm_ip:
+server:
+  - { name:"front01.prod.s2.carteloisirs.com", listen: "192.168.31.8" }
+  - { name:"front02.prod.s2.carteloisirs.com", listen: "192.168.31.10" }
+  - { name:"front01.prod.s3.carteloisirs.com", listen: "192.168.31.11" }
+  - { name:"front02.prod.s3.carteloisirs.com", listen: "192.168.31.12" }

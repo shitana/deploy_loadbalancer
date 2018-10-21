@@ -1,0 +1,18 @@
+- hosts: lb
+  name: Connexion validation
+  become: true
+  gather_facts: False
+  tasks:
+    - block: #Try, if ping we continue the playbook else we go to rescue
+        - ping: ""
+      rescue: #catch
+        - raw: apt-get update
+        - raw: apt-get install -yyq python python-apt
+
+- hosts: lb
+  name: deploy haproxy
+  gather_facts: True
+  become: true
+  roles:
+    - role: 'ssl'
+    - role: 'haproxy'
