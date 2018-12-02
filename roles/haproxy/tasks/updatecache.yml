@@ -1,0 +1,10 @@
+# vim: set tabstop=2 shiftwidth=2 expandtab:
+
+# perform an apt-get install to fix broken packages
+- name: fix brokens dpkg if exists
+  command: apt-get install -fy
+
+# Update cache, if apt_cache_valid_time exceded
+- name: Update apt cache
+  apt: update_cache=yes #cache_valid_time={{ apt_cache_valid_time|default(3600)|int }} force=yes
+

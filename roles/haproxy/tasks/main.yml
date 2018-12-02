@@ -1,0 +1,54 @@
+#LOGS MANAGEMENT & RELAOD RSYSLOG
+#- debug: 
+#    var: ansible_facts.ens20
+
+- name: Update Apt
+  include: "updatecache.yml"
+
+- name: install haproxy
+  apt:
+    name: haproxy={{ haproxy_version | default("1.6.3-1ubuntu0.1") }}
+    state: present  
+
+- name: enable haproxy service
+  service:
+    name: haproxy
+    enabled: yes
+    state: started
+
+- name: create ssl dir
+  file:
+    path: "{{ ssl_path }}"
+    state: directory
+    owner: haproxy
+    group: haproxy
+    mode: 0700
+
+- name: deploy cert
+  copy:
+    src: ".{{ ssl_path }}/{{ cert_name }}"
+    dest: "{{ ssl_path }}"
+    owner: haproxy
+    group: haproxy
+    mode: 0400
+
+- name: update rsyslog.conf
+  copy:
+    src: ./etc/rsyslog.conf
+    dest: /etc/rsyslog.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart rsyslog
+
+#- name: deploy haproxy rsyslog conf
+# use default conf
+ 
+#- name: deploy logrotate conf 
+# use default conf
+
+- name: Update configuration file
+  template:
+    src: ./etc/haproxy/haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+  notify: restart haproxy
