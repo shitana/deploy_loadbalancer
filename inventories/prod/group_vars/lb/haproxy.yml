@@ -10,7 +10,9 @@ backend_server:
     - { name: "front01.prod.s3.carteloisirs.com", listen: "192.168.31.10" }
     - { name: "front02.prod.s3.carteloisirs.com", listen: "192.168.31.11" }
   cargo_html_site:
-    - {}
+    - { name: "cargo01.prod.carteloisirs.com", listen: "192.168.31.14" }
+    - { name: "cargo02.prod.carteloisirs.com", listen: "192.168.31.15" }
+    - { name: "cargo03.prod.carteloisirs.com", listen: "192.168.31.16" }
   cargo_svc_proxy_back:
     - {}
 haproxy_adm: haproxyadm
