@@ -64,6 +64,14 @@ backend jboss_http
 {% for server in backend_server.jboss | default([]) %}
         server {{ server.name }} {{ server.listen }}:8080 check cookie s1 maxconn 1000000
 {% endfor %}
+
+backend html_http
+        mode  http
+        balance roundrobin
+        cookie SERVERID insert indirect nocache
+{% for server in backend_server.cargo_html_site | default([]) %}
+        server {{ server.name }} {{ server.listen }}:8080 check cookie s1 maxconn 1000000
+{% endfor %}
  
 listen stats
         bind {{ haproxy_adm_ip }}:8082 
