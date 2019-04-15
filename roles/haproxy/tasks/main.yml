@@ -7,7 +7,7 @@
 
 - name: install haproxy
   apt:
-    name: haproxy={{ haproxy_version | default("1.6.3-1ubuntu0.1") }}
+    name: haproxy={{ haproxy_version | default("1.6.3-1ubuntu0.2") }}
     state: present  
 
 - name: enable haproxy service

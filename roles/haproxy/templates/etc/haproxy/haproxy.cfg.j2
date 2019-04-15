@@ -37,7 +37,7 @@ defaults
  
 frontend https 
 {% if ansible_facts.ens20.ipv4 is defined %}
-        bind {{ ansible_facts.ens20.ipv4.address }}:443 ssl crt {{ ssl_path }}/{{ cert_name }}
+        bind {{ ansible_facts.ens20.ipv4.address }}:443 ssl crt {{ ssl_path }}/{{ cert_name }} 
 {% else %}
         bind 0.0.0.0:443 ssl crt {{ ssl_path }}/{{ cert_name }}
 {% endif %}
@@ -46,12 +46,30 @@ frontend https
 	reqadd X-Forwarded-Proto:\ http
 	reqadd X-Forwarded-Proto:\ https
         default_backend jboss_http
+
+frontend http
+{% if ansible_facts.ens20.ipv4 is defined %}
+        bind {{ ansible_facts.ens20.ipv4.address }}:80
+{% else %}
+        bind 0.0.0.0:80
+{% endif %}
+        mode http
+        reqadd X-Forwarded-Proto:\ http
+        default_backend html_http
  
 backend jboss_http 
         mode  http 
         balance roundrobin 
         cookie SERVERID insert indirect nocache 
-{% for server in backend_server | default([]) %}
+{% for server in backend_server.jboss | default([]) %}
+        server {{ server.name }} {{ server.listen }}:8080 check cookie s1 maxconn 1000000
+{% endfor %}
+
+backend html_http
+        mode  http
+        balance roundrobin
+        cookie SERVERID insert indirect nocache
+{% for server in backend_server.cargo_html_site | default([]) %}
         server {{ server.name }} {{ server.listen }}:8080 check cookie s1 maxconn 1000000
 {% endfor %}
  
