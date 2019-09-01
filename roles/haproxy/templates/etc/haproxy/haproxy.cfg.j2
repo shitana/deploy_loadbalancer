@@ -35,7 +35,10 @@ defaults
         errorfile 503 /etc/haproxy/errors/503.http
         errorfile 504 /etc/haproxy/errors/504.http
  
-frontend https 
+###############################################################################
+# WILDFLY BOOKING PORTAL
+###############################################################################
+frontend jboss_https 
 {% if ansible_facts.ens20.ipv4 is defined %}
         bind {{ ansible_facts.ens20.ipv4.address }}:443 ssl crt {{ ssl_path }}/{{ cert_name }} 
 {% else %}
@@ -47,6 +50,18 @@ frontend https
 	reqadd X-Forwarded-Proto:\ https
         default_backend jboss_http
 
+backend jboss_http 
+        mode  http 
+        balance roundrobin 
+        cookie SERVERID insert indirect nocache 
+{% for server in backend_server.jboss | default([]) %}
+        server {{ server.name }} {{ server.listen }}:8080 check cookie s1 maxconn 1000000
+{% endfor %}
+###############################################################################
+
+###############################################################################
+# HTTP ETLC SITE
+###############################################################################
 frontend http
 {% if ansible_facts.ens20.ipv4 is defined %}
         bind {{ ansible_facts.ens20.ipv4.address }}:80
@@ -56,14 +71,6 @@ frontend http
         mode http
         reqadd X-Forwarded-Proto:\ http
         default_backend html_http
- 
-backend jboss_http 
-        mode  http 
-        balance roundrobin 
-        cookie SERVERID insert indirect nocache 
-{% for server in backend_server.jboss | default([]) %}
-        server {{ server.name }} {{ server.listen }}:8080 check cookie s1 maxconn 1000000
-{% endfor %}
 
 backend html_http
         mode  http
@@ -72,7 +79,84 @@ backend html_http
 {% for server in backend_server.cargo_html_site | default([]) %}
         server {{ server.name }} {{ server.listen }}:8080 check cookie s1 maxconn 1000000
 {% endfor %}
- 
+###############################################################################
+
+###############################################################################
+# PROXY SERVICE PUB
+###############################################################################
+frontend proxy_service_pub_front
+{% if ansible_facts.ens20.ipv4 is defined %}
+        bind {{ ansible_facts.ens20.ipv4.address }}:10080
+{% else %}
+        bind 0.0.0.0:10080
+{% endif %}
+        mode http
+        reqadd X-Forwarded-Proto:\ http
+        default_backend proxy_service_back
+
+frontend proxy_service_int_front
+{% if ansible_facts.ens19.ipv4 is defined %}
+        bind {{ ansible_facts.ens19.ipv4.address }}:10080
+{% else %}
+        bind 0.0.0.0:10080
+{% endif %}
+        mode http
+        reqadd X-Forwarded-Proto:\ http
+        default_backend proxy_service_back
+
+backend proxy_service_back
+        mode  http
+        balance roundrobin
+        cookie SERVERID insert indirect nocache
+{% for server in backend_server.cargo_html_site | default([]) %}
+        server {{ server.name }} {{ server.listen }}:10080 check cookie s1 maxconn 1000000
+{% endfor %}
+############################################################################### 
+
+###############################################################################
+# CONFIGURATION SERVICE
+###############################################################################
+frontend configuration_service_int_front
+{% if ansible_facts.ens19.ipv4 is defined %}
+        bind {{ ansible_facts.ens19.ipv4.address }}:11080
+{% else %}
+        bind 0.0.0.0:11080
+{% endif %}
+        mode http
+        reqadd X-Forwarded-Proto:\ http
+        default_backend configuration_service_back
+
+backend configuration_service_back
+        mode  http
+        balance roundrobin
+        cookie SERVERID insert indirect nocache
+{% for server in backend_server.cargo_html_site | default([]) %}
+        server {{ server.name }} {{ server.listen }}:11080 check cookie s1 maxconn 1000000
+{% endfor %}
+###############################################################################
+
+###############################################################################
+# DISCOVERY SERVICE
+###############################################################################
+frontend discovery_service_int_front
+{% if ansible_facts.ens19.ipv4 is defined %}
+        bind {{ ansible_facts.ens19.ipv4.address }}:12080
+{% else %}
+        bind 0.0.0.0:12080
+{% endif %}
+        mode http
+        reqadd X-Forwarded-Proto:\ http
+        default_backend discovery_service_back
+
+backend discovery_service_back
+        mode  http
+        balance roundrobin
+        cookie SERVERID insert indirect nocache
+{% for server in backend_server.cargo_html_site | default([]) %}
+        server {{ server.name }} {{ server.listen }}:12080 check cookie s1 maxconn 1000000
+{% endfor %}
+###############################################################################
+
 listen stats
         bind {{ haproxy_adm_ip }}:8082 
         mode http 
