@@ -1,0 +1,25 @@
+- name: install keepalived
+  apt:
+    name: keepalived={{ keepalived_version | default("1:1.2.24-1ubuntu0.16.04.2") }}
+    state: present  
+
+- name: Deploy Check Scripts for keepalived
+  copy:
+    src: "{{ item }}"
+    dest: /etc/keepalived/
+    owner: root
+    group: root
+    mode: 0755
+  with_fileglob:
+    - "./etc/keepalived/*"
+
+- name: Deploy Configuration keepalived
+  template:
+    src: ./etc/keepalived/keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+
+- name: enable keepalived service
+  service:
+    name: keepalived
+    enabled: yes
+    state: restarted

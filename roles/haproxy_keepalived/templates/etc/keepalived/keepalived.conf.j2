@@ -1,0 +1,33 @@
+vrrp_script chk_haproxy {
+   script "/etc/keepalived/check_haproxy.sh"
+   interval 1
+   weight 50
+}
+
+vrrp_instance VI_LB_PROD {
+ interface ens19
+{% if inventory_hostname == "lb01.prod.s2.carteloisirs.com" %}
+ state MASTER
+{% else %}
+ state BACKUP
+{% endif %}
+ priority 101
+ virtual_router_id 51
+ advert_int 1
+
+ authentication {
+  auth_type PASS
+  auth_pass 22a2fb02fb4bc6114ef361ef3925692f
+ }
+
+ virtual_ipaddress {
+  192.168.31.113
+ }
+
+ track_script {
+  chk_haproxy
+ }
+
+ notify_master /etc/keepalived/script_master.sh
+ notify_backup /etc/keepalived/script_backup.sh
+}
