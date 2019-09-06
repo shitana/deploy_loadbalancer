@@ -1,0 +1,57 @@
+###############################################################################
+# PROXY SERVICE PUB
+###############################################################################
+frontend proxy_service_int_front
+{% if env == "prod" %}
+        bind 192.168.31.113:10080
+{% else %}
+        bind 0.0.0.0:10080
+{% endif %}
+        mode http
+        reqadd X-Forwarded-Proto:\ http
+        default_backend proxy_service_back
+############################################################################### 
+
+###############################################################################
+# CONFIGURATION SERVICE
+###############################################################################
+frontend configuration_service_int_front
+{% if env == "prod" %}
+        bind 192.168.31.113:11080
+{% else %}
+        bind 0.0.0.0:11080
+{% endif %}
+        mode http
+        reqadd X-Forwarded-Proto:\ http
+        default_backend configuration_service_back
+
+backend configuration_service_back
+        mode  http
+        balance roundrobin
+        cookie SERVERID insert indirect nocache
+{% for server in backend_server.cargo_html_site | default([]) %}
+        server {{ server.name }} {{ server.listen }}:11080 check cookie s1 maxconn 1000000
+{% endfor %}
+###############################################################################
+
+###############################################################################
+# DISCOVERY SERVICE
+###############################################################################
+frontend discovery_service_int_front
+{% if env == "prod" %}
+        bind 192.168.31.113:12080
+{% else %}
+        bind 0.0.0.0:12080
+{% endif %}
+        mode http
+        reqadd X-Forwarded-Proto:\ http
+        default_backend discovery_service_back
+
+backend discovery_service_back
+        mode  http
+        balance roundrobin
+        cookie SERVERID insert indirect nocache
+{% for server in backend_server.cargo_html_site | default([]) %}
+        server {{ server.name }} {{ server.listen }}:12080 check cookie s1 maxconn 1000000
+{% endfor %}
+###############################################################################

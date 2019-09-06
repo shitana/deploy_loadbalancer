@@ -14,5 +14,5 @@
   gather_facts: True
   become: true
   roles:
-    - role: 'haproxy'
+    - role: 'haproxy_keepalived'
   serial: 1

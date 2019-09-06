@@ -1,0 +1,5 @@
+- name: Deploy Haproxy
+  include: "haproxy.yml"
+
+- name: Deploy Keepalived
+  include: "keepalived.yml"

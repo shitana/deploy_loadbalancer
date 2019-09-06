@@ -14,7 +14,7 @@
   service:
     name: haproxy
     enabled: yes
-    state: started
+#    state: started
 
 - name: create ssl dir
   file:
@@ -47,8 +47,12 @@
 #- name: deploy logrotate conf 
 # use default conf
 
-- name: Update configuration file
+- name: Deploy Haproxy Pub Conf
   template:
-    src: ./etc/haproxy/haproxy.cfg.j2
-    dest: /etc/haproxy/haproxy.cfg
-  notify: restart haproxy
+    src: ./etc/haproxy/haproxy_public.cfg.j2
+    dest: /etc/haproxy/haproxy_public.cfg
+
+- name: Deploy Haproxy Priv Conf
+  template:
+    src: ./etc/haproxy/haproxy_private.cfg.j2
+    dest: /etc/haproxy/haproxy_private.cfg
