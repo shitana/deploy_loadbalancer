@@ -1,13 +1,2 @@
-[front]
-front01.rec.carteloisirs.com
-front01.staging.s1.carteloisirs.com
-front02.staging.s1.carteloisirs.com
-
-[db]
-back01.rec.carteloisirs.com
-
-[test]
-front01.staging.s1.carteloisirs.com
-
 [lb]
-lb01.staging.s1.carteloisirs.com
+lb01.staging.s1
